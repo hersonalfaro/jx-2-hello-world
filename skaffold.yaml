@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/hersonalfaro/jx-2-hello-world:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/hersonalfaro/jx-2-hello-world:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: jx-2-hello-world
+        chartPath: charts/jx-2-hello-world
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/hersonalfaro/jx-2-hello-world'
+          image.tag: '{{.DIGEST_HEX}}'
